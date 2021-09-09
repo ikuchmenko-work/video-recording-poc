@@ -22,7 +22,7 @@ export default function App() {
             }
         })} >
             <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen name="Camera" component={CameraScreen}/>
+            <Tab.Screen name="Camera" component={CameraScreen} options={{headerShown: false}}/>
         </Tab.Navigator>
       </NavigationContainer>
   );

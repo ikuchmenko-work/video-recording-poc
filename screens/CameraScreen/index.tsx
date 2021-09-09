@@ -1,11 +1,16 @@
 import React from 'react';
-import {Text, View} from "react-native";
+import {createNativeStackNavigator} from "@react-navigation/native-stack";
+import Player from "../../components/Player";
+import CameraComponent from "../../components/Camera";
+
+const Stack = createNativeStackNavigator();
 
 const CameraScreen = () => {
     return (
-        <View>
-            <Text>Camera screen</Text>
-        </View>
+        <Stack.Navigator initialRouteName={"Record"}>
+            <Stack.Screen name={"Record"}  component={CameraComponent}/>
+            <Stack.Screen name={"Player"}  component={Player}/>
+        </Stack.Navigator>
     );
 };
 
