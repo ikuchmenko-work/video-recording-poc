@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {NavigationProp} from "@react-navigation/native";
+import {NavigationProp, useIsFocused} from "@react-navigation/native";
 import {Camera} from "expo-camera";
 import {CameraType} from "expo-camera/build/Camera.types";
 
@@ -11,12 +11,15 @@ type Props = {
 const CameraComponent = ({navigation}: Props) => {
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
     const [type, setType] = useState<CameraType>(Camera.Constants.Type.back);
-
+    const isFocused = useIsFocused();
     useEffect(() => {
         (async () => {
             const { status } = await Camera.requestPermissionsAsync();
             setHasPermission(status === 'granted');
         })();
+        return (()=> {
+
+        })
     }, []);
 
     if (hasPermission === null) {
@@ -28,32 +31,32 @@ const CameraComponent = ({navigation}: Props) => {
 
     return (
         <View style={styles.container}>
-            <Camera style={styles.camera} type={type}>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => {
-                            setType(
-                                type === Camera.Constants.Type.back
-                                    ? Camera.Constants.Type.front
-                                    : Camera.Constants.Type.back
-                            );
-                        }}>
-                        <Text style={styles.text}> Record video </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={{...styles.button, ...styles.flipBtn}}
-                        onPress={() => {
-                            setType(
-                                type === Camera.Constants.Type.back
-                                    ? Camera.Constants.Type.front
-                                    : Camera.Constants.Type.back
-                            );
-                        }}>
-                        <Text style={styles.text}> Flip </Text>
-                    </TouchableOpacity>
-                </View>
-            </Camera>
+            {isFocused && <Camera style={styles.camera} type={type}>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => {
+                      setType(
+                          type === Camera.Constants.Type.back
+                              ? Camera.Constants.Type.front
+                              : Camera.Constants.Type.back
+                      );
+                  }}>
+                  <Text style={styles.text}> Record video </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{...styles.button, ...styles.flipBtn}}
+                  onPress={() => {
+                      setType(
+                          type === Camera.Constants.Type.back
+                              ? Camera.Constants.Type.front
+                              : Camera.Constants.Type.back
+                      );
+                  }}>
+                  <Text style={styles.text}> Flip </Text>
+                </TouchableOpacity>
+              </View>
+            </Camera>}
             {/*<Button title={"Watch video"} onPress={()=>{navigation.navigate("Player")}}/>*/}
         </View>
     );
