@@ -1,6 +1,8 @@
 import React, {useRef} from 'react';
-import {Button, StyleSheet, View} from "react-native";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Video} from "expo-av";
+import * as Sharing from 'expo-sharing';
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const Player = ({route, navigation}: any) => {
     const video = useRef(null);
@@ -17,8 +19,17 @@ const Player = ({route, navigation}: any) => {
                 isLooping={true}
                 resizeMode="contain"
             />
-            <Button title={"Home"} onPress={()=>{navigation.navigate("Home")}} />
-            <Button title={"Go back"} onPress={()=>{navigation.goBack()}} />
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.button} onPress={()=>{navigation.navigate("Home")}}>
+                    <Text style={styles.text}>Home</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={()=>{navigation.goBack()}}>
+                    <Text style={styles.text}>Go back</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={()=>{Sharing.shareAsync(data.uri)}}>
+                    <Ionicons name={"share"} color={"white"} size={25} />
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -27,18 +38,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    camera: {
-        flex: 1,
-    },
     buttonContainer: {
-        flex: 1,
         backgroundColor: 'transparent',
         flexDirection: 'row',
         justifyContent: "center",
         margin: 20,
     },
     button: {
-        flex: 0.5,
         alignSelf: 'flex-end',
         alignItems: 'center',
         padding: 10,
@@ -46,32 +52,16 @@ const styles = StyleSheet.create({
         borderColor: "black",
         borderRadius: 5,
         backgroundColor: "black",
-        marginHorizontal: 10
-    },
-    flipBtn: {
-        flex: 0.3,
-        backgroundColor: "transparent"
+        marginHorizontal: 10,
+        height: 50
     },
     text: {
         fontSize: 18,
         color: 'white',
     },
-    cameraContainer: {
-        flex: 1,
-        flexDirection: 'row'
-    },
-    fixedRatio:{
-        flex: 1,
-        // aspectRatio: 1
-    },
     video: {
         flex: 1,
-    },
-    buttons: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+    }
 });
 
 export default Player;
