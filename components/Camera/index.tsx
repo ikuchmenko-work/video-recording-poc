@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {NavigationProp, useIsFocused} from "@react-navigation/native";
 import {Camera} from "expo-camera";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -14,6 +14,7 @@ const CameraComponent = ({navigation}: Props) => {
     const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
     const [camera, setCamera] = useState<any>(null);
     const [type, setType] = useState(Camera.Constants.Type.back);
+    const [isRecording, setIsRecording] = useState<boolean>(false);
 
     const isFocused = useIsFocused();
 
@@ -29,12 +30,15 @@ const CameraComponent = ({navigation}: Props) => {
 
     const takeVideo = async () => {
         if(camera){
+            setIsRecording(true);
             const data = await camera.recordAsync({
-                maxDuration:3
+                maxDuration:3,
+                quality: '720p'
             })
             navigation.navigate('Player', {
                 uri: data.uri
             })
+            setIsRecording(false);
         }
     }
 
@@ -49,13 +53,16 @@ const CameraComponent = ({navigation}: Props) => {
                 {isFocused &&
                     <Camera
                       ref={(ref) => setCamera(ref)}
-                      style={styles.fixedRatio}
+                      style={[styles.fixedRatio, {
+                          width: Dimensions.get("window").width,
+                          height: Dimensions.get("window").height * 0.7
+                      }]}
                       type={type}
                       ratio={'4:3'} >
                       <View style={styles.buttonContainer}>
 
                         <TouchableOpacity onPress={() => takeVideo()} style={styles.button}>
-                          <FontAwesome name="circle" size={60} color="white" />
+                          <FontAwesome name="circle" size={60} color={isRecording ? "red" : "white"} />
                         </TouchableOpacity>
 
                         <TouchableOpacity
@@ -104,7 +111,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     fixedRatio:{
-        flex: 1,
+        // flex: 1,
     },
     video: {
         alignSelf: 'center',
