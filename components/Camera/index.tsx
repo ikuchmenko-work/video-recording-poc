@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import { Camera } from "expo-camera";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -36,18 +31,16 @@ const CameraComponent: React.FC = ({ navigation }: any) => {
   }, []);
 
   const takeVideo = useCallback(async () => {
-    if (camera) {
-      setIsRecording(true);
-      const data = await camera.current?.recordAsync({
-        maxDuration: 3,
-        quality: "720p",
-      });
-      navigation.navigate("Player", {
-        uri: data?.uri,
-      });
-      setIsRecording(false);
-    }
-  }, [camera]);
+    setIsRecording(true);
+    const data = await camera.current?.recordAsync({
+      maxDuration: 3,
+      quality: "720p",
+    });
+    navigation.navigate("Player", {
+      uri: data?.uri,
+    });
+    setIsRecording(false);
+  }, []);
 
   const setCameraType = useCallback(() => {
     setType(
