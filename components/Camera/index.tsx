@@ -5,7 +5,7 @@ import { Camera } from "expo-camera";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FontAwesome } from "@expo/vector-icons";
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from "../../constants";
-import {CameraType} from "expo-camera/build/Camera.types";
+import { CameraType } from "expo-camera/build/Camera.types";
 
 const CameraComponent: React.FC = ({ navigation }: any) => {
   const [hasAudioPermission, setHasAudioPermission] = useState<boolean | null>(
@@ -43,8 +43,8 @@ const CameraComponent: React.FC = ({ navigation }: any) => {
   }, []);
 
   const setCameraType = useCallback(() => {
-    setType(
-      type === Camera.Constants.Type.back
+    setType((prevState: CameraType) =>
+      prevState === Camera.Constants.Type.back
         ? Camera.Constants.Type.front
         : Camera.Constants.Type.back
     );
