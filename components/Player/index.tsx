@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Video } from "expo-av";
 import * as Sharing from "expo-sharing";
@@ -15,14 +15,16 @@ const Player: React.FC = ({ route, navigation }: any) => {
   const goHome = () => navigation.navigate("Home");
   const goBack = () => navigation.goBack();
 
+  const source = useMemo(() => {
+    return { uri: data.uri };
+  }, [data]);
+
   return (
     <View style={styles.container}>
       <Video
         ref={video}
         style={styles.video}
-        source={{
-          uri: data.uri,
-        }}
+        source={source}
         useNativeControls
         isLooping={true}
         resizeMode="contain"
