@@ -7,6 +7,8 @@ import { FontAwesome } from "@expo/vector-icons";
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from "../../constants";
 import { CameraType } from "expo-camera/build/Camera.types";
 
+import * as Progress from "react-native-progress";
+
 const CameraComponent: React.FC = ({ navigation }: any) => {
   const [hasAudioPermission, setHasAudioPermission] = useState<boolean | null>(
     null
@@ -16,6 +18,7 @@ const CameraComponent: React.FC = ({ navigation }: any) => {
   >(null);
   const [type, setType] = useState<CameraType>(Camera.Constants.Type.back);
   const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [progress, setProgress] = useState<number>(0);
   const camera = useRef<Camera | null>(null);
 
   const isFocused = useIsFocused();
@@ -30,15 +33,33 @@ const CameraComponent: React.FC = ({ navigation }: any) => {
     })();
   }, []);
 
+  const animate = () => {
+    let progress = 0;
+    setProgress(progress);
+    const timer = setInterval(() => {
+      progress += 0.01;
+      if (progress > 1) {
+        progress = 1;
+        clearInterval(timer);
+      }
+      setProgress(progress);
+    }, 30);
+  };
+
   const takeVideo = useCallback(async () => {
+    animate();
     setIsRecording(true);
-    const data = await camera.current?.recordAsync({
-      maxDuration: 3,
-      quality: "720p",
-    });
-    navigation.navigate("Player", {
-      uri: data?.uri,
-    });
+    await camera.current
+      ?.recordAsync({
+        maxDuration: 3,
+        quality: "720p",
+      })
+      .then((res) => {
+        navigation.navigate("Player", {
+          uri: res.uri,
+        });
+        setProgress(0);
+      });
     setIsRecording(false);
   }, []);
 
@@ -67,11 +88,14 @@ const CameraComponent: React.FC = ({ navigation }: any) => {
         >
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={takeVideo} style={styles.button}>
-              <FontAwesome
-                name="circle"
-                size={60}
-                color={isRecording ? "red" : "white"}
-              />
+              <Progress.Circle style={styles.progressCircle} progress={progress} borderWidth={0} color={"#fff"} size={65}>
+                <FontAwesome
+                  name="circle"
+                  size={60}
+                  color={isRecording ? "red" : "white"}
+                  style={styles.recordBtn}
+                />
+              </Progress.Circle>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button} onPress={setCameraType}>
@@ -124,8 +148,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   recordBtn: {
-    alignSelf: "center",
+    position: "absolute"
   },
+  progressCircle: {
+    justifyContent: "center",
+    alignItems: "center"
+  }
+
 });
 
 export default CameraComponent;
