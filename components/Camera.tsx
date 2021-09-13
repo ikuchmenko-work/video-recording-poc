@@ -4,7 +4,7 @@ import { useIsFocused } from "@react-navigation/native";
 import { Camera } from "expo-camera";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FontAwesome } from "@expo/vector-icons";
-import { WINDOW_HEIGHT, WINDOW_WIDTH } from "../../constants";
+import { WINDOW_HEIGHT, WINDOW_WIDTH } from "../constants";
 import { CameraType } from "expo-camera/build/Camera.types";
 
 import * as Progress from "react-native-progress";
