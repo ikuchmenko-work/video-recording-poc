@@ -12,8 +12,13 @@ const Player: React.FC = ({ route, navigation }: any) => {
     Sharing.shareAsync(data.uri);
   }, [data]);
 
-  const goHome = () => navigation.navigate("Home");
-  const goBack = () => navigation.goBack();
+
+  const goHome = useCallback(() => {
+    navigation.navigate("Home");
+  }, [navigation]);
+  const goBack = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
 
   const source = useMemo(() => {
     return { uri: data.uri };
