@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Animated,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import { Camera } from "expo-camera";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -7,7 +13,8 @@ import { FontAwesome } from "@expo/vector-icons";
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from "../constants";
 import { CameraType } from "expo-camera/build/Camera.types";
 
-import * as Progress from "react-native-progress";
+import ProgressBar from "./ProgressBar";
+import AnimatedValue = Animated.AnimatedValue;
 
 const CameraComponent: React.FC = ({ navigation }: any) => {
   const [hasAudioPermission, setHasAudioPermission] = useState<boolean | null>(
@@ -46,8 +53,43 @@ const CameraComponent: React.FC = ({ navigation }: any) => {
     }, 30);
   };
 
+  const setCameraType = useCallback(() => {
+    setType((prevState: CameraType) =>
+      prevState === Camera.Constants.Type.back
+        ? Camera.Constants.Type.front
+        : Camera.Constants.Type.back
+    );
+  }, [type]);
+
+  const animationVariable = useRef<AnimatedValue>(
+    new Animated.Value(0)
+  ).current;
+  const animateProgress = useCallback(() => {
+    Animated.timing(animationVariable, {
+      toValue: 1,
+      useNativeDriver: false,
+      duration: 4000,
+    }).start();
+  }, []);
+  const resetAnimation = useCallback(() => {
+    Animated.timing(animationVariable, {
+      toValue: 0,
+      useNativeDriver: false,
+      duration: 200,
+    }).start();
+  }, []);
+  const animatedStyle = {
+    width: animationVariable.interpolate({
+      inputRange: [0, 1],
+      outputRange: ["0%", "100%"],
+    }),
+    height: 30,
+    backgroundColor: "red",
+  };
+
   const takeVideo = useCallback(async () => {
     animate();
+    animateProgress();
     setIsRecording(true);
     await camera.current
       ?.recordAsync({
@@ -59,17 +101,10 @@ const CameraComponent: React.FC = ({ navigation }: any) => {
           uri: res.uri,
         });
         setProgress(0);
+        resetAnimation();
       });
     setIsRecording(false);
   }, []);
-
-  const setCameraType = useCallback(() => {
-    setType((prevState: CameraType) =>
-      prevState === Camera.Constants.Type.back
-        ? Camera.Constants.Type.front
-        : Camera.Constants.Type.back
-    );
-  }, [type]);
 
   if (hasCameraPermission === null || hasAudioPermission === null) {
     return <View />;
@@ -87,23 +122,24 @@ const CameraComponent: React.FC = ({ navigation }: any) => {
           ratio={"4:3"}
         >
           <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={takeVideo} style={styles.button}>
-              <Progress.Circle style={styles.progressCircle} progress={progress} borderWidth={0} color={"#fff"} size={65}>
-                <FontAwesome
-                  name="circle"
-                  size={60}
-                  color={isRecording ? "red" : "white"}
-                  style={styles.recordBtn}
-                />
-              </Progress.Circle>
+            <TouchableOpacity style={styles.actionBtn} onPress={takeVideo}>
+              <FontAwesome
+                name="circle"
+                size={60}
+                color={isRecording ? "red" : "white"}
+              />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={setCameraType}>
+            <TouchableOpacity style={styles.actionBtn} onPress={setCameraType}>
               <Ionicons name={"camera-reverse"} color={"white"} size={40} />
             </TouchableOpacity>
           </View>
         </Camera>
       )}
+      <ProgressBar progress={progress} />
+      <View style={styles.progressBarContainer}>
+        <Animated.View style={animatedStyle} />
+      </View>
     </View>
   );
 };
@@ -114,12 +150,8 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     flexDirection: "row",
     justifyContent: "center",
-    margin: 20,
-  },
-  button: {
-    alignSelf: "flex-end",
-    padding: 10,
-    borderRadius: 5,
+    alignItems: "flex-end",
+    paddingBottom: 20,
   },
   flipBtn: {
     flex: 1,
@@ -128,6 +160,9 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 18,
     color: "white",
+  },
+  actionBtn: {
+    margin: 5,
   },
   cameraContainer: {
     flex: 1,
@@ -147,13 +182,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  recordBtn: {
-    position: "absolute"
+  progressBarContainer: {
+    borderWidth: 2,
+    borderColor: "#000",
+    borderRadius: 5,
+    width: "95%",
+    alignSelf: "center",
+    margin: 5,
   },
-  progressCircle: {
-    justifyContent: "center",
-    alignItems: "center"
-  }
 });
 
 export default CameraComponent;
